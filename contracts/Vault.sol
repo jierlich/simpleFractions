@@ -2,6 +2,7 @@
 
 pragma solidity >=0.7.0 <0.9.0;
 
+import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "./IFractionalToken.sol";
 
@@ -13,7 +14,7 @@ import "./IFractionalToken.sol";
             Burns ERC20 on withdraw
 */
 
-contract Vault {
+contract Vault is ERC721Holder {
     /// @dev Address of the fractionalizing ERC20 token
     address public ERC20;
 
