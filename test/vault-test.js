@@ -1,4 +1,5 @@
 const { expect } = require("chai")
+const { keccak256, toUtf8Bytes } = require("ethers/lib/utils")
 const { ethers } = require("hardhat")
 const BN = ethers.BigNumber.from
 
@@ -36,6 +37,22 @@ describe("Vault", () => {
         // Create vault
         const VaultContract = await ethers.getContractFactory("Vault", this.signers[10])
         this.vault = await VaultContract.deploy(testIDs, testAmounts, this.ERC20.address, this.MockERC721.address)
+
+        // Give only vault ERC20 permissions
+        const MINTER_ROLE = keccak256(toUtf8Bytes("MINTER_ROLE"))
+        const PAUSER_ROLE = keccak256(toUtf8Bytes("PAUSER_ROLE"))
+        await this.ERC20.connect(this.signers[10]).grantRole(
+            MINTER_ROLE,
+            this.vault.address
+        )
+        this.ERC20.connect(this.signers[10]).renounceRole(
+            MINTER_ROLE,
+            this.signers[10].address
+        )
+        this.ERC20.connect(this.signers[10]).renounceRole(
+            PAUSER_ROLE,
+            this.signers[10].address
+        )
     })
 
     it("checks the user can't deposit an unregistered ID", async () => {
