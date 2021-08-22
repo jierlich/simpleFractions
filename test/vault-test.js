@@ -3,6 +3,7 @@ const { keccak256, toUtf8Bytes } = require("ethers/lib/utils")
 const { ethers } = require("hardhat")
 const BN = ethers.BigNumber.from
 
+const zero = BN(0)
 const hundredthEther = BN("10000000000000000")
 const oneEther = BN("1000000000000000000")
 const testIDs = [BN(0), BN(1), BN(2)]
@@ -69,7 +70,76 @@ describe("Vault", () => {
         ).to.be.revertedWith("Attemping to transfer wrong ERC721")
     })
 
-    it("performs a normal deposit and withdrawal", async () => {
+    it("performs normal deposits and withdrawals", async () => {
+        /*
+        This tests verifies the correctness of a few behaviors.
+        - contract successfully sends and receives ERC721s
+        - contracts successfully mints and burns ERC20s
+
+        */
+
+        // Before deposits
+        expect(await this.MockERC721.ownerOf(0)).to.equal(this.signers[0].address)
+        expect(await this.MockERC721.ownerOf(1)).to.equal(this.signers[1].address)
+        expect(await this.ERC20.totalSupply()).to.equal(zero)
+        expect(await this.ERC20.balanceOf(this.signers[0].address)).to.equal(zero)
+        expect(await this.ERC20.balanceOf(this.signers[1].address)).to.equal(zero)
+
+        // Signer 0 deposits
         this.MockERC721.connect(this.signers[0]).approve(this.vault.address, 0)
+        await this.vault.connect(this.signers[0]).deposit(0, this.MockERC721.address)
+        expect(await this.MockERC721.ownerOf(0)).to.equal(this.vault.address)
+        expect(await this.MockERC721.ownerOf(1)).to.equal(this.signers[1].address)
+        expect(await this.ERC20.totalSupply()).to.equal(hundredthEther)
+        expect(await this.ERC20.balanceOf(this.signers[0].address)).to.equal(hundredthEther)
+        expect(await this.ERC20.balanceOf(this.signers[1].address)).to.equal(zero)
+
+        // Signer 1 deposits
+        this.MockERC721.connect(this.signers[1]).approve(this.vault.address, 1)
+        await this.vault.connect(this.signers[1]).deposit(1, this.MockERC721.address)
+        expect(await this.MockERC721.ownerOf(0)).to.equal(this.vault.address)
+        expect(await this.MockERC721.ownerOf(1)).to.equal(this.vault.address)
+        expect(await this.ERC20.totalSupply()).to.equal(hundredthEther.mul(BN(3)))
+        expect(await this.ERC20.balanceOf(this.signers[0].address)).to.equal(hundredthEther)
+        expect(await this.ERC20.balanceOf(this.signers[1].address)).to.equal(hundredthEther.mul(BN(2)))
+
+        // Signer 1 sends half of tokens to Signer 0
+        await this.ERC20.connect(this.signers[1]).transfer(this.signers[0].address, hundredthEther)
+        expect(await this.ERC20.balanceOf(this.signers[0].address)).to.equal(hundredthEther.mul(BN(2)))
+        expect(await this.ERC20.balanceOf(this.signers[1].address)).to.equal(hundredthEther)
+
+        // Signer 1 withdraws ERC721 ID 0
+        await this.ERC20.connect(this.signers[1]).approve(this.vault.address, hundredthEther)
+        await this.vault.connect(this.signers[1]).withdraw(0)
+        expect(await this.MockERC721.ownerOf(0)).to.equal(this.signers[1].address)
+        expect(await this.MockERC721.ownerOf(1)).to.equal(this.vault.address)
+        expect(await this.ERC20.totalSupply()).to.equal(hundredthEther.mul(BN(2)))
+        expect(await this.ERC20.balanceOf(this.signers[0].address)).to.equal(hundredthEther.mul(BN(2)))
+        expect(await this.ERC20.balanceOf(this.signers[1].address)).to.equal(zero)
+
+        // Signer 0 withdraws ERC721 ID 1
+        await this.ERC20.connect(this.signers[0]).approve(this.vault.address, hundredthEther.mul(BN(2)))
+        await this.vault.connect(this.signers[0]).withdraw(1)
+        expect(await this.MockERC721.ownerOf(0)).to.equal(this.signers[1].address)
+        expect(await this.MockERC721.ownerOf(1)).to.equal(this.signers[0].address)
+        expect(await this.ERC20.totalSupply()).to.equal(zero)
+        expect(await this.ERC20.balanceOf(this.signers[0].address)).to.equal(zero)
+        expect(await this.ERC20.balanceOf(this.signers[1].address)).to.equal(zero)
     })
 })
+
+/*
+Test cases:
+x constructor
+    x check that user can't deposit unregistered ID
+    x check that user can't deposit a different NFT (AltMockERC721 fails)
+- onERC721Received (Deposit) / Withdraw
+    x check that 721 moves to contract
+    x check that appropriate amount of erc20 goes to signer, do at least 2
+    x deposit and withdraw twice (from same user AND diff user?) to verify consistent behavior
+    - fails to withdraw missing tokenID before deposit
+    - fails to withdraw missing tokenID that doesn't exist
+    - fail to withdraw without enough tokens
+- What attacks is the vault vulnerable to?
+- verify deployer can't mint or pause
+*/
