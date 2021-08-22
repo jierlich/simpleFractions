@@ -72,10 +72,9 @@ describe("Vault", () => {
 
     it("performs normal deposits and withdrawals", async () => {
         /*
-        This tests verifies the correctness of a few behaviors.
-        - contract successfully sends and receives ERC721s
-        - contracts successfully mints and burns ERC20s
-
+        This tests verifies the correctness of a few behaviors:
+        - contract successfully receives and sends ERC721s
+        - contract successfully mints and burns ERC20s
         */
 
         // Before deposits
@@ -125,6 +124,25 @@ describe("Vault", () => {
         expect(await this.ERC20.totalSupply()).to.equal(zero)
         expect(await this.ERC20.balanceOf(this.signers[0].address)).to.equal(zero)
         expect(await this.ERC20.balanceOf(this.signers[1].address)).to.equal(zero)
+    })
+
+    it("fails to withdraw without enough tokens", async () => {
+        // Signer 0 deposits
+        this.MockERC721.connect(this.signers[0]).approve(this.vault.address, 0)
+        await this.vault.connect(this.signers[0]).deposit(0, this.MockERC721.address)
+        expect(await this.MockERC721.ownerOf(0)).to.equal(this.vault.address)
+
+        // Signer 1 fails to withdraw without enough tokens
+        await this.ERC20.connect(this.signers[1]).approve(this.vault.address, hundredthEther)
+        await expect(
+            this.vault.connect(this.signers[1]).withdraw(0)
+         ).to.be.revertedWith("User has insufficient amount of ERC20")
+         expect(await this.MockERC721.ownerOf(0)).to.equal(this.vault.address)
+
+        // Signer 1 successfully withdraws
+        await this.ERC20.connect(this.signers[0]).transfer(this.signers[1].address, hundredthEther)
+        await this.vault.connect(this.signers[1]).withdraw(0)
+        expect(await this.MockERC721.ownerOf(0)).to.equal(this.signers[1].address)
     })
 })
 
