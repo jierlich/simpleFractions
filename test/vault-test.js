@@ -171,4 +171,10 @@ describe("Vault", () => {
             this.vault.connect(this.signers[3]).deposit(3, this.MockERC721.address)
          ).to.be.revertedWith("This _tokenId can not be deposited")
     })
+
+    it("fails to withdraw a missing ERC721", async () => {
+        await expect(
+            this.vault.connect(this.signers[0]).withdraw(3)
+         ).to.be.revertedWith("ERC721 not deposited")
+    })
 })
