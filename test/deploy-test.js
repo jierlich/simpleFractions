@@ -3,6 +3,7 @@ const { ethers } = require("hardhat");
 const { expect } = require('chai');
 const BN = ethers.BigNumber.from
 
+const zero = BN("0")
 const hundredthEther = BN("10000000000000000")
 const oneEther = BN("1000000000000000000")
 
@@ -69,5 +70,24 @@ describe("Deploy Script", () => {
         await expect(
             this.fractionalToken.connect(this.deployer).pause()
         ).to.be.revertedWith("ERC20PresetMinterPauser: must have pauser role to pause")
+    })
+
+    it("checks sample functionality", async () => {
+        // Deposit
+        this.MockERC721.connect(this.signers[0]).approve(this.vaultContract.address, 0)
+        await this.vaultContract.connect(this.signers[0]).deposit(0, this.MockERC721.address)
+        expect(await this.MockERC721.ownerOf(0)).to.equal(this.vaultContract.address)
+        expect(await this.fractionalToken.balanceOf(this.signers[0].address)).to.equal(hundredthEther)
+
+        // Transfer
+        await this.fractionalToken.connect(this.signers[0]).transfer(this.signers[1].address, hundredthEther)
+        expect(await this.fractionalToken.balanceOf(this.signers[0].address)).to.equal(zero)
+        expect(await this.fractionalToken.balanceOf(this.signers[1].address)).to.equal(hundredthEther)
+
+        // Withdraw
+        await this.fractionalToken.connect(this.signers[1]).approve(this.vaultContract.address, hundredthEther)
+        await this.vaultContract.connect(this.signers[1]).withdraw(0)
+        expect(await this.MockERC721.ownerOf(0)).to.equal(this.signers[1].address)
+        expect(await this.fractionalToken.balanceOf(this.signers[1].address)).to.equal(zero)
     })
 })
