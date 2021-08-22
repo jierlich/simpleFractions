@@ -166,19 +166,3 @@ describe("Vault", () => {
         expect(await this.MockERC721.ownerOf(0)).to.equal(this.signers[1].address)
     })
 })
-
-/*
-Test cases:
-x constructor
-    x check that user can't deposit unregistered ID
-    x check that user can't deposit a different NFT (AltMockERC721 fails)
-- onERC721Received (Deposit) / Withdraw
-    x check that 721 moves to contract
-    x check that appropriate amount of erc20 goes to signer, do at least 2
-    x deposit and withdraw twice (from same user AND diff user?) to verify consistent behavior
-    - fails to withdraw missing tokenID before deposit
-    - fails to withdraw missing tokenID that doesn't exist
-    - fail to withdraw without enough tokens
-- What attacks is the vault vulnerable to?
-- verify deployer can't mint or pause
-*/
