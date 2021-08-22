@@ -64,4 +64,10 @@ describe("Deploy Script", () => {
             this.fractionalToken.connect(this.deployer).mint(this.deployer.address, oneEther)
         ).to.be.revertedWith("ERC20PresetMinterPauser: must have minter role to mint")
     })
+
+    it("checks deployer can not pause", async () => {
+        await expect(
+            this.fractionalToken.connect(this.deployer).pause()
+        ).to.be.revertedWith("ERC20PresetMinterPauser: must have pauser role to pause")
+    })
 })
