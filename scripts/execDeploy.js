@@ -1,6 +1,7 @@
+const config = require('./config')
 const deploy = require('./deploy')
 
-deploy()
+deploy(config)
     .then(() => process.exit(0))
     .catch(error => {
         console.log(error)

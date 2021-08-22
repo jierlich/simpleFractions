@@ -1,9 +1,8 @@
 const { keccak256, toUtf8Bytes } = require("ethers/lib/utils")
 const { ethers } = require("hardhat");
 const BN = ethers.BigNumber.from
-const config = require('./config')
 
-module.exports = async function () {
+module.exports = async function (config) {
     const [ deployer ] = await ethers.getSigners();
 
     // Create fractionalToken
