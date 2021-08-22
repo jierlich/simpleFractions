@@ -126,6 +126,27 @@ describe("Vault", () => {
         expect(await this.ERC20.balanceOf(this.signers[1].address)).to.equal(zero)
     })
 
+    it("deposits and withdraws a single NFT twice", async () => {
+        // Deposit 1
+        this.MockERC721.connect(this.signers[0]).approve(this.vault.address, 0)
+        await this.vault.connect(this.signers[0]).deposit(0, this.MockERC721.address)
+        expect(await this.MockERC721.ownerOf(0)).to.equal(this.vault.address)
+
+        // Withdraw 1
+        await this.ERC20.connect(this.signers[0]).approve(this.vault.address, hundredthEther.mul(BN(2)))
+        await this.vault.connect(this.signers[0]).withdraw(0)
+        expect(await this.MockERC721.ownerOf(0)).to.equal(this.signers[0].address)
+
+        // Deposit 2
+        this.MockERC721.connect(this.signers[0]).approve(this.vault.address, 0)
+        await this.vault.connect(this.signers[0]).deposit(0, this.MockERC721.address)
+        expect(await this.MockERC721.ownerOf(0)).to.equal(this.vault.address)
+
+        // Withdraw 2
+        await this.vault.connect(this.signers[0]).withdraw(0)
+        expect(await this.MockERC721.ownerOf(0)).to.equal(this.signers[0].address)
+    })
+
     it("fails to withdraw without enough tokens", async () => {
         // Signer 0 deposits
         this.MockERC721.connect(this.signers[0]).approve(this.vault.address, 0)
