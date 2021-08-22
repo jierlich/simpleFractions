@@ -39,20 +39,11 @@ describe("Vault", () => {
         const VaultContract = await ethers.getContractFactory("Vault", this.signers[10])
         this.vault = await VaultContract.deploy(testIDs, testAmounts, this.ERC20.address, this.MockERC721.address)
 
-        // Give only vault ERC20 permissions
+        // Give vault ERC20 minting permissions
         const MINTER_ROLE = keccak256(toUtf8Bytes("MINTER_ROLE"))
-        const PAUSER_ROLE = keccak256(toUtf8Bytes("PAUSER_ROLE"))
         await this.ERC20.connect(this.signers[10]).grantRole(
             MINTER_ROLE,
             this.vault.address
-        )
-        this.ERC20.connect(this.signers[10]).renounceRole(
-            MINTER_ROLE,
-            this.signers[10].address
-        )
-        this.ERC20.connect(this.signers[10]).renounceRole(
-            PAUSER_ROLE,
-            this.signers[10].address
         )
     })
 
