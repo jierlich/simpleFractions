@@ -53,4 +53,15 @@ describe("Deploy Script", () => {
         expect(this.fractionalToken.deployTransaction).to.not.equal(undefined)
         expect(this.vaultContract.deployTransaction).to.not.equal(undefined)
     })
+
+    it("checks only the vault can mint", async () => {
+        // vault minting succeeds
+        this.MockERC721.connect(this.signers[0]).approve(this.vaultContract.address, 0)
+        await this.vaultContract.connect(this.signers[0]).deposit(0, this.MockERC721.address)
+
+        // deployer minting fails
+        await expect(
+            this.fractionalToken.connect(this.deployer).mint(this.deployer.address, oneEther)
+        ).to.be.revertedWith("ERC20PresetMinterPauser: must have minter role to mint")
+    })
 })
