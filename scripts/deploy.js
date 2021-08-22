@@ -34,4 +34,5 @@ module.exports = async function (config) {
         PAUSER_ROLE,
         deployer.address
     )
+    return { deployer, fractionalToken, vaultContract }
 }
