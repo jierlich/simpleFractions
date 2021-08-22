@@ -1,5 +1,6 @@
 const deployScript = require('../scripts/deploy')
 const { ethers } = require("hardhat");
+const { expect } = require('chai');
 const BN = ethers.BigNumber.from
 
 describe("Deploy Script", () => {
@@ -36,7 +37,9 @@ describe("Deploy Script", () => {
         Object.assign(this, await deployScript(testConfig))
     })
 
-    it("is a test", async () => {
+    it("deploys the contracts", async () => {
+        console.log()
+        expect(this.fractionalToken.deployTransaction).to.not.equal(undefined)
+        expect(this.vaultContract.deployTransaction).to.not.equal(undefined)
     })
-
 })
