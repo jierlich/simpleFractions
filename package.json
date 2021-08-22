@@ -4,7 +4,8 @@
   "description": "A minimal contract for fractionalizing ERC721s into an ERC20.",
   "main": "index.js",
   "scripts": {
-    "test": "npx hardhat test"
+    "test": "npx hardhat test",
+    "deploy": "npx hardhat run scripts/execDeploy.js"
   },
   "keywords": [],
   "author": "jierlich",
