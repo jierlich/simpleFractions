@@ -3,6 +3,19 @@ const { ethers } = require("hardhat");
 const { expect } = require('chai');
 const BN = ethers.BigNumber.from
 
+const hundredthEther = BN("10000000000000000")
+const oneEther = BN("1000000000000000000")
+
+// Call an async function while supressing generated log messages
+async function suppressLogsAsync (fn, input) {
+    const logger = console.log
+    console.log = () => { return }
+
+    const res = await fn(input)
+    console.log = logger
+    return res
+}
+
 describe("Deploy Script", () => {
     beforeEach(async () => {
         this.signers = await ethers.getSigners()
@@ -19,8 +32,6 @@ describe("Deploy Script", () => {
         this.MockERC721.mint(this.signers[3].address)
 
         // Set up config
-        const hundredthEther = BN("10000000000000000")
-        const oneEther = BN("1000000000000000000")
         const testConfig = {
             ERC20Name: "SimpleFraction",
             ERC20Symbol: "SIMP",
@@ -34,7 +45,7 @@ describe("Deploy Script", () => {
 
         // Retrieve deployer,fractionalToken, and vaultContract from deploy script
         // Note: deployer == this.signers[0]
-        Object.assign(this, await deployScript(testConfig))
+        Object.assign(this, await suppressLogsAsync(deployScript, testConfig))
     })
 
     it("deploys the contracts", async () => {
