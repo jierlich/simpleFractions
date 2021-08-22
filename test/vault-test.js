@@ -165,4 +165,10 @@ describe("Vault", () => {
         await this.vault.connect(this.signers[1]).withdraw(0)
         expect(await this.MockERC721.ownerOf(0)).to.equal(this.signers[1].address)
     })
+
+    it("fails to deposit an unregistered tokenId", async () => {
+        await expect(
+            this.vault.connect(this.signers[3]).deposit(3, this.MockERC721.address)
+         ).to.be.revertedWith("This _tokenId can not be deposited")
+    })
 })
