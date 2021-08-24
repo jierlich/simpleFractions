@@ -28,5 +28,6 @@ the desired deployment network
 `deposit(uint256 _tokenId, address _ERC721)` - Deposits the `_tokenId` ERC721
 specified in `_ERC721` in the vault. The vault mints a specified amount of the
 Fractional ERC20 to the caller.
+
 `withdraw(uint256 _tokenId)` - Withdraws the `_tokenId` ERC721 to the caller.
 The caller also burns the amount of Fractional ERC20 received upon ERC721 deposit.
