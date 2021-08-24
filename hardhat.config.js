@@ -1,4 +1,5 @@
 require("@nomiclabs/hardhat-waffle");
+require("@nomiclabs/hardhat-etherscan");
 const environment = require('./environment')
 
 /**
@@ -15,5 +16,8 @@ module.exports = {
   },
   solidity: {
     version: "0.8.4",
+  },
+  etherscan: {
+    apiKey: environment.etherscanAPIKey
   }
 };
