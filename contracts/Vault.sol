@@ -3,6 +3,7 @@
 pragma solidity 0.8.4;
 
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "./IFractionalToken.sol";
 
@@ -14,7 +15,7 @@ import "./IFractionalToken.sol";
             Burns ERC20 on withdraw
 */
 
-contract Vault is ERC721Holder {
+contract Vault is ERC721Holder, Ownable {
     /// @dev Address of the fractionalizing ERC20 token
     address public ERC20;
 
@@ -24,7 +25,7 @@ contract Vault is ERC721Holder {
     /// @dev ERC721 ID to number of corresponding ERC20 tokens
     mapping(uint256 => uint256) public fungibleAmount;
 
-    /// @param _tokenIds ID of tokens for ERC721. The keys of _fungibleAmount
+    /// @param _tokenIds IDs of the ERC721. The keys of _fungibleAmount
     /// @param _fungibleAmount Number of ERC20 corresponding to a specific ERC721. The values of fungibleAmount
     /// @param _ERC20 address of the fractional ERC20 token
     /// @param _ERC721 address of the ERC721 to fractionalize
@@ -58,5 +59,13 @@ contract Vault is ERC721Holder {
         require(IERC721(ERC721).ownerOf(_tokenId) == address(this), "ERC721 not deposited");
         IFractionalToken(ERC20).burnFrom(msg.sender, fungibleAmount[_tokenId]);
         IERC721(ERC721).safeTransferFrom(address(this), msg.sender, _tokenId);
+    }
+
+    /// @notice Register a new token ID and its corresponding ERC20 value
+    /// @param _tokenId ID of the ERC721 token
+    /// @param _fungibleAmount Number of ERC20 corresponding to this ERC721 ID
+    function addId(uint256 _tokenId, uint256 _fungibleAmount) onlyOwner() public {
+        require(fungibleAmount[_tokenId] == 0, "This _tokenId is already registered.");
+        fungibleAmount[_tokenId] = _fungibleAmount;
     }
 }

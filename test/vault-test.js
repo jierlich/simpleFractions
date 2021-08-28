@@ -181,4 +181,36 @@ describe("Vault", () => {
             this.vault.connect(this.signers[0]).withdraw(3)
          ).to.be.revertedWith("ERC721 not deposited")
     })
+
+    it("allows only the owner to add new IDs", async () => {
+        await expect(
+            this.vault.connect(this.signers[0]).addId(BN(3), hundredthEther)
+        ).to.be.revertedWith("Ownable: caller is not the owner")
+        await this.vault.connect(this.signers[10]).addId(BN(3), hundredthEther)
+        expect(await this.vault.fungibleAmount(BN(3))).to.equal(hundredthEther)
+    })
+
+    it("does not allow existing IDs to be added", async () => {
+        await expect(
+            this.vault.connect(this.signers[10]).addId(BN(2), hundredthEther)
+        ).to.be.revertedWith("This _tokenId is already registered.")
+    })
+
+    it("ensures added IDs behave consistently with constructor IDs", async () => {
+        await this.vault.connect(this.signers[10]).addId(BN(3), hundredthEther)
+
+        // Deposit
+        this.MockERC721.connect(this.signers[3]).approve(this.vault.address, 3)
+        await this.vault.connect(this.signers[3]).deposit(3, this.MockERC721.address)
+        expect(await this.MockERC721.ownerOf(3)).to.equal(this.vault.address)
+        expect(await this.ERC20.totalSupply()).to.equal(hundredthEther)
+        expect(await this.ERC20.balanceOf(this.signers[3].address)).to.equal(hundredthEther)
+
+        // Withdraw
+        await this.ERC20.connect(this.signers[3]).approve(this.vault.address, hundredthEther)
+        await this.vault.connect(this.signers[3]).withdraw(3)
+        expect(await this.MockERC721.ownerOf(3)).to.equal(this.signers[3].address)
+        expect(await this.ERC20.totalSupply()).to.equal(zero)
+        expect(await this.ERC20.balanceOf(this.signers[3].address)).to.equal(zero)
+    })
 })
