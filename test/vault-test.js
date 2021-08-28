@@ -122,20 +122,24 @@ describe("Vault", () => {
         this.MockERC721.connect(this.signers[0]).approve(this.vault.address, 0)
         await this.vault.connect(this.signers[0]).deposit(0, this.MockERC721.address)
         expect(await this.MockERC721.ownerOf(0)).to.equal(this.vault.address)
+        expect(await this.ERC20.balanceOf(this.signers[0].address)).to.equal(hundredthEther)
 
         // Withdraw 1
         await this.ERC20.connect(this.signers[0]).approve(this.vault.address, hundredthEther.mul(BN(2)))
         await this.vault.connect(this.signers[0]).withdraw(0)
         expect(await this.MockERC721.ownerOf(0)).to.equal(this.signers[0].address)
+        expect(await this.ERC20.balanceOf(this.signers[0].address)).to.equal(zero)
 
         // Deposit 2
         this.MockERC721.connect(this.signers[0]).approve(this.vault.address, 0)
         await this.vault.connect(this.signers[0]).deposit(0, this.MockERC721.address)
         expect(await this.MockERC721.ownerOf(0)).to.equal(this.vault.address)
+        expect(await this.ERC20.balanceOf(this.signers[0].address)).to.equal(hundredthEther)
 
         // Withdraw 2
         await this.vault.connect(this.signers[0]).withdraw(0)
         expect(await this.MockERC721.ownerOf(0)).to.equal(this.signers[0].address)
+        expect(await this.ERC20.balanceOf(this.signers[0].address)).to.equal(zero)
     })
 
     it("fails to withdraw without enough tokens", async () => {
