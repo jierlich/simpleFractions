@@ -38,6 +38,7 @@ describe("Vault", () => {
         // Create vault
         const VaultContract = await ethers.getContractFactory("Vault", this.signers[10])
         this.vault = await VaultContract.deploy(testIDs, testAmounts, this.ERC20.address, this.MockERC721.address)
+        await this.vault.deployed()
 
         // Give vault ERC20 minting permissions
         const MINTER_ROLE = keccak256(toUtf8Bytes("MINTER_ROLE"))
