@@ -151,11 +151,20 @@ describe("Vault", () => {
         await this.ERC20.connect(this.signers[1]).approve(this.vault.address, hundredthEther)
         await expect(
             this.vault.connect(this.signers[1]).withdraw(0)
-         ).to.be.revertedWith("User has insufficient amount of ERC20")
+         ).to.be.revertedWith("ERC20: burn amount exceeds balance")
          expect(await this.MockERC721.ownerOf(0)).to.equal(this.vault.address)
 
-        // Signer 1 successfully withdraws
+        // Signer 0 sends tokens to signer 1
         await this.ERC20.connect(this.signers[0]).transfer(this.signers[1].address, hundredthEther)
+
+        // Signer 0 fails to withdraw without enough tokens
+        await this.ERC20.connect(this.signers[0]).approve(this.vault.address, hundredthEther)
+        await expect(
+            this.vault.connect(this.signers[0]).withdraw(0)
+        ).to.be.revertedWith("ERC20: burn amount exceeds balance")
+        expect(await this.MockERC721.ownerOf(0)).to.equal(this.vault.address)
+
+        // Signer 1 successfully withdraws
         await this.vault.connect(this.signers[1]).withdraw(0)
         expect(await this.MockERC721.ownerOf(0)).to.equal(this.signers[1].address)
     })
