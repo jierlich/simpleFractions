@@ -18,7 +18,7 @@ describe("Vault", () => {
         this.ERC20 = await ERC20Contract.deploy("SimpleFraction", "SIMP")
         await this.ERC20.deployed()
 
-        // Creat mock ERC721 for the vault
+        // Create mock ERC721 for the vault
         const MockERC721Contract = await ethers.getContractFactory("MockERC721", this.signers[10])
         this.MockERC721 = await MockERC721Contract.deploy("MockNFT", "MOCK",)
         await this.MockERC721.deployed()
@@ -54,7 +54,6 @@ describe("Vault", () => {
 
     })
     it("checks the user can't deposit the wrong NFT", async () => {
-        this.MockERC721.connect(this.signers[0]).approve(this.vault.address, 0)
         this.AltMockERC721.connect(this.signers[0]).approve(this.vault.address, 0)
         await expect(
            this.vault.connect(this.signers[0]).deposit(0, this.AltMockERC721.address)
