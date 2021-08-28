@@ -8,6 +8,8 @@ different mint values set for each ID. Users can withdraw any ERC721 token ID fr
 vault if they burn the amount of the ERC20 that was minted for that ERC721 upon
 deposit.
 
+Note: This code is tested, but not audited. Use at your own risk.
+
 ## Deployment
 - Customize the Vault in `scripts/config.js`. Among other attributes, you'll
  specify the ERC721 being fractionalized and the number of tokens minted
