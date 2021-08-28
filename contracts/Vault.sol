@@ -56,9 +56,6 @@ contract Vault is ERC721Holder {
     /// @param _tokenId ID of the ERC721 to withdraw
     function withdraw(uint256 _tokenId) public {
         require(IERC721(ERC721).ownerOf(_tokenId) == address(this), "ERC721 not deposited");
-        require(
-            IFractionalToken(ERC20).balanceOf(msg.sender) >= fungibleAmount[_tokenId],
-            "User has insufficient amount of ERC20");
         IFractionalToken(ERC20).burnFrom(msg.sender, fungibleAmount[_tokenId]);
         IERC721(ERC721).safeTransferFrom(address(this), msg.sender, _tokenId);
     }
