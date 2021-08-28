@@ -15,8 +15,8 @@ deposit.
 - Create an `environment.js` at the root with the following format:
 ```
 module.exports = {
-    deployerPK: 'g',
-    alchemyAPIKey: 'm',
+    deployerPK:      'g',
+    alchemyAPIKey:   'm',
     etherscanAPIKey: 'i'
 }
 ```

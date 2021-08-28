@@ -42,7 +42,7 @@ contract Vault is ERC721Holder {
         }
     }
 
-    /// @notice Allows a user to depsoit an ERC721 in exchange for minted ERC20s
+    /// @notice Allows a user to deposit an ERC721 in exchange for minted ERC20s
     /// @param _tokenId ID of the ERC721 to deposit
     /// @param _ERC721 Address of the ERC721 to deposit
     function deposit(uint256 _tokenId, address _ERC721) public {
