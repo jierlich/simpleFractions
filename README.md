@@ -9,7 +9,7 @@ vault if they burn the amount of the ERC20 that was minted for that ERC721 upon
 deposit.
 
 ## Deployment
-- Customize the Vault in `config.js`. Among other attributes, you'll
+- Customize the Vault in `scripts/config.js`. Among other attributes, you'll
  specify the ERC721 being fractionalized and the number of tokens minted
  for each ERC721 ID. The ERC20 defined by the contract has a `decimals()` value of `18`.
 - Create an `environment.js` at the root with the following format:
